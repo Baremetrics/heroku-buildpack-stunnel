@@ -37,7 +37,7 @@ do
     URI_DB_NAME=${URI[4]
 
     echo "Setting ${URL}_STUNNEL config var"
-    export ${URL}_STUNNEL=$URI_SCHEME://:$URI_PASS@127.0.0.1:4342${n}
+    export ${URL}_STUNNEL=$URI_SCHEME://:$URI_PASS@127.0.0.1:4342${n}/$URI_DB_NAME
   else
     URI_SCHEME=${URI[0]}
     URI_USER=${URI[1]}
