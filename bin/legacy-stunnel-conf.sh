@@ -39,7 +39,7 @@ do
     URI_HOST=${URI[2]}
     URI_PORT=${URI[3]}
     STUNNEL_PORT=$((URI_PORT + 1))
-    URI_DB_NAME=${URI[4]
+    URI_DB_NAME=${URI[4]}
 
     echo "Setting ${URL}_STUNNEL config var"
     export ${URL}_STUNNEL=$URI_SCHEME://:$URI_PASS@127.0.0.1:4342${n}/$URI_DB_NAME
