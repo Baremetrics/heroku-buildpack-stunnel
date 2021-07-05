@@ -20,7 +20,7 @@ TIMEOUTidle = 86400
 ciphers = HIGH:!ADH:!AECDH:!LOW:!EXP:!MD5:!3DES:!SRP:!PSK:@STRENGTH
 debug = ${STUNNEL_LOGLEVEL:-notice}
 EOFEOF
-
+# debug
 for URL in $URLS
 do
   eval URL_VALUE=\$$URL
