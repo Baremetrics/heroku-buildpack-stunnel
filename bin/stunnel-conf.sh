@@ -34,6 +34,7 @@ do
     URI_HOST=${URI[2]}
     URI_PORT=${URI[3]}
     STUNNEL_PORT=$((URI_PORT + 1))
+    URI_DB_NAME=${URI[4]
 
     echo "Setting ${URL}_STUNNEL config var"
     export ${URL}_STUNNEL=$URI_SCHEME://:$URI_PASS@127.0.0.1:4342${n}
@@ -44,9 +45,10 @@ do
     URI_HOST=${URI[3]}
     URI_PORT=${URI[4]}
     STUNNEL_PORT=$((URI_PORT + 1))
+    URI_DB_NAME=${URI[5]}
 
     echo "Setting ${URL}_STUNNEL config var"
-    export ${URL}_STUNNEL=$URI_SCHEME://$URI_USER:$URI_PASS@127.0.0.1:4342${n}
+    export ${URL}_STUNNEL=$URI_SCHEME://$URI_USER:$URI_PASS@127.0.0.1:4342${n}/$URI_DB_NAME
   fi
 
   cat >> /app/vendor/stunnel/stunnel.conf << EOFEOF
