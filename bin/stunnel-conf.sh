@@ -37,7 +37,7 @@ do
     QUERY_PARAMS=${URI[5]}
 
     echo "Setting ${URL} config var"
-    export $URL="$URI_SCHEME://:$URI_PASS@127.0.0.1:4342${n}/$URI_DB_NAME?$QUERY_PARAMS"
+    export ${URL}_STUNNEL="$URI_SCHEME://:$URI_PASS@127.0.0.1:4342${n}/$URI_DB_NAME?$QUERY_PARAMS"
 
   else
     URI_SCHEME=${URI[0]}
@@ -50,7 +50,7 @@ do
     QUERY_PARAMS=${URI[6]}
 
     echo "Setting ${URL} config var"
-    export $URL="$URI_SCHEME://$URI_USER:$URI_PASS@127.0.0.1:4342${n}/$URI_DB_NAME?$QUERY_PARAMS"
+    export ${URL}_STUNNEL="$URI_SCHEME://$URI_USER:$URI_PASS@127.0.0.1:4342${n}/$URI_DB_NAME?$QUERY_PARAMS"
 
   fi
 
