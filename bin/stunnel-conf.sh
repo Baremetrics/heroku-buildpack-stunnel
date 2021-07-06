@@ -54,12 +54,12 @@ do
   fi
 
   cat >> /app/vendor/stunnel/stunnel.conf << EOFEOF
-  [$URL]
-  client = yes
-  accept = 127.0.0.1:4342${n}
-  connect = $URI_HOST:$STUNNEL_PORT
-  retry = ${STUNNEL_CONNECTION_RETRY:-"no"}
-  EOFEOF
+[$URL]
+client = yes
+accept = 127.0.0.1:4342${n}
+connect = $URI_HOST:$STUNNEL_PORT
+retry = ${STUNNEL_CONNECTION_RETRY:-"no"}
+EOFEOF
 
   let "n += 1"
 done
