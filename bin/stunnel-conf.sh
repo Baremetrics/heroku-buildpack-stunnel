@@ -18,10 +18,10 @@ EOFEOF
 for URL in $URLS
 do
   eval URL_VALUE=\$$URL
-  PARTS=$(echo $URL_VALUE | perl -lne 'print "$1 $2 $3 $4 $5 $6 $7" if /^([^:]+):\/\/([^:]+):([^@]+)@(.*?):(.*?)\/([^?]+)\?(.*)$/')
+  PARTS=$(echo $URL_VALUE | perl -lne 'print "$1 $2 $3 $4 $5 $6 $7" if /^([^:]+):\/\/([^:]+):([^@]+)@(.*?):(.*?)(\/(.*?)(\\?.*))?$/')
   if [ -z "$PARTS" ]
   then
-    PARTS=$(echo $URL_VALUE | perl -lne 'print "$1 $2 $3 $4 $5 $6 $7" if /^([^:]+):\/\/:([^@]+)@(.*?):(.*?)\/([^?]+)\?(.*)$/')
+    PARTS=$(echo $URL_VALUE | perl -lne 'print "$1 $2 $3 $4 $5 $6 $7" if /^([^:]+):\/\/:([^@]+)@(.*?):(.*?)(\/(.*?)(\\?.*))?$/')
     WITHOUT_USERNAME=true
   fi
   URI=( $PARTS )
@@ -32,12 +32,11 @@ do
     URI_PASS=${URI[1]}
     URI_HOST=${URI[2]}
     URI_PORT=${URI[3]}
-    STUNNEL_PORT=$URI_PORT
-    URI_DB_NAME=${URI[4]}
-    QUERY_PARAMS=${URI[5]}
+    STUNNEL_PORT=$((URI_PORT - 1))
+    URI_PATH_AND_QUERY=${URI[4]}
 
-    echo "Setting ${URL} config var"
-    export ${URL}_STUNNEL="$URI_SCHEME://:$URI_PASS@127.0.0.1:4342${n}/$URI_DB_NAME?$QUERY_PARAMS"
+    echo "Setting ${URL}_STUNNEL config var"
+    export ${URL}_STUNNEL="$URI_SCHEME://:$URI_PASS@127.0.0.1:4342${n}$URI_PATH_AND_QUERY"
 
   else
     URI_SCHEME=${URI[0]}
@@ -45,12 +44,11 @@ do
     URI_PASS=${URI[2]}
     URI_HOST=${URI[3]}
     URI_PORT=${URI[4]}
-    STUNNEL_PORT=$URI_PORT
-    URI_DB_NAME=${URI[5]}
-    QUERY_PARAMS=${URI[6]}
+    STUNNEL_PORT=$((URI_PORT - 1))
+    URI_PATH_AND_QUERY=${URI[5]}
 
-    echo "Setting ${URL} config var"
-    export ${URL}_STUNNEL="$URI_SCHEME://$URI_USER:$URI_PASS@127.0.0.1:4342${n}/$URI_DB_NAME?$QUERY_PARAMS"
+    echo "Setting ${URL}_STUNNEL config var"
+    export ${URL}_STUNNEL="$URI_SCHEME://$URI_USER:$URI_PASS@127.0.0.1:4342${n}$URI_PATH_AND_QUERY"
 
   fi
 
