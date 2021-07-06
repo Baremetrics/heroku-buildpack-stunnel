@@ -54,7 +54,7 @@ It is also possible (and advised) to pass the username, e.g.
 Note that all query params that would appeat after the dbname would pass as is
 Example of connection string and how will it translated in the stunnel configuration:
  
- `MYSQL_DATABASE_URL=mysql2://username:password@memsql-staging-sandbox.baremetrics.io:3306/dbname`
+ `MYSQL_DATABASE_URL=mysql2://username:password@host:3306/dbname`
  
  Will set the following configuration on the stunnel client:
  
@@ -62,7 +62,7 @@ Example of connection string and how will it translated in the stunnel configura
  [MYSQL_DATABASE_URL]
     client = yes
     accept = 127.0.0.1:43421
-    connect = memsql-staging-sandbox.baremetrics.io:3305
+    connect = host:3305
     retry = no
  ```
  Make sure the port 3305 is open on your server.
