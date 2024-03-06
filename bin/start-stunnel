@@ -10,6 +10,15 @@ main() {
   run-stunnel "$@"
 }
 
+forward_term_signal_to_child() {
+  local app_pid=$1
+
+  echo "Terminating CHILD $app_pid"
+
+  kill -SIGTSTP $app_pid
+  kill -SIGTERM $app_pid
+}
+
 run-stunnel() {
   declare sentinel=/tmp/stunnel-buildpack-wait
   declare -A pids signals
@@ -26,8 +35,8 @@ run-stunnel() {
   pid=$!
   pgid=$(ps -o pgid= $pid | xargs)
 
-  # Don't exit top script until all subprocesses are done.
-  trap '' SIGTERM
+  # Forward signals to the child processes.
+  trap "forward_term_signal_to_child '$pid'" SIGTERM
 
   # This read will block the process waiting on a msg to be put into the
   # fifo. If any of the processes defined above should exit, a msg will be
@@ -41,13 +50,6 @@ run-stunnel() {
   # Remove the FIFO. This allows following writes to simply create a file,
   # rather than blocking because there's nothing reading the other end.
   rm -f "$sentinel"
-
-  # Clean up any running processes.
-  # SIGTERM the application's process group (hence the negative PID), just in
-  # case something else crashed. If the dyno is shutting down, then SIGTERM
-  # has already been sent.
-  at "kill-app pid=$pid"
-  kill -SIGTERM -$pgid
 
   # Wait for the app to finish.
   at "wait-app pid=$pid"
@@ -121,14 +123,8 @@ app-start() {
     # SIGTERM on shutdown.
     "$@" &
 
-    # Translate SIGHUP to the appropriate signal to stop the child
-    # (probably SIGTERM in this case). This *will* cancel the wait and may
-    # lead to the outer subshell exiting before the app.
-    trap "kill -$signal $!" SIGHUP
-
-    # Ignore SIGTERM because the dyno will broadcast it to all children --
-    # there is no need to translate it.
-    trap "" SIGTERM
+    # Forward any signal to the child of this child (the real app)
+    trap "kill -$signal $!" SIGHUP SIGTERM SIGTSTP
 
     # Wait for the app to finish, either by crash or by $signal
     wait
