@@ -128,7 +128,7 @@ app-start() {
 
     # Ignore SIGTERM because the dyno will broadcast it to all children --
     # there is no need to translate it.
-    trap "" SIGTERM
+    trap "kill -$signal $!" SIGTERM
 
     # Wait for the app to finish, either by crash or by $signal
     wait
