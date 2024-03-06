@@ -124,7 +124,7 @@ app-start() {
     "$@" &
 
     # Forward any signal to the child of this child (the real app)
-    trap "kill -$signal $!" SIGHUP SIGTERM SIGTSTP
+    trap "kill -$signal $!" SIGTERM SIGTSTP
 
     # Wait for the app to finish, either by crash or by $signal
     wait
