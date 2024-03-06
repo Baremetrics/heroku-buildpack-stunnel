@@ -26,8 +26,8 @@ run-stunnel() {
   pid=$!
   pgid=$(ps -o pgid= $pid | xargs)
 
-  # Don't exit top script until all subprocesses are done.
-  trap '' SIGTERM
+  # Forward SIGTERM to child (parent of our app)
+  trap 'kill -SIGTERM $pid' SIGTERM
 
   # This read will block the process waiting on a msg to be put into the
   # fifo. If any of the processes defined above should exit, a msg will be
@@ -46,7 +46,7 @@ run-stunnel() {
   # SIGTERM the application's process group (hence the negative PID), just in
   # case something else crashed. If the dyno is shutting down, then SIGTERM
   # has already been sent.
-  at "kill-app pid=$pid"
+  at "kill-app pid=-$pgid"
   kill -SIGTERM -$pgid
 
   # Wait for the app to finish.
@@ -60,6 +60,8 @@ run-stunnel() {
     at "kill-aux name=$name pid=${pids[$name]} signal=${signals[$name]}"
     kill -SIGHUP "${pids[$name]}"
   done
+
+  exit 0
 }
 
 config-gen() {
@@ -95,8 +97,12 @@ aux-start() {
     # lead to the outer subshell exiting before the aux process
     trap "kill -$signal $!" SIGHUP
 
-    # Wait for child to finish, either by crash or by $signal
-    wait
+    # Wait for the app to finish, either by crash or by $signal
+    # Signals cause wait to exit with a status equal to the signal number plus 128.
+    # To get the real exit status, loop until $? is less.
+    while wait $!; test $? -ge 128
+    do at "$name-finished-waiting"
+    done
 
     # Notify FIFO if this finishes first
     echo "$name" > "$sentinel"
@@ -121,17 +127,15 @@ app-start() {
     # SIGTERM on shutdown.
     "$@" &
 
-    # Translate SIGHUP to the appropriate signal to stop the child
-    # (probably SIGTERM in this case). This *will* cancel the wait and may
-    # lead to the outer subshell exiting before the app.
-    trap "kill -$signal $!" SIGHUP
-
-    # Ignore SIGTERM because the dyno will broadcast it to all children --
-    # there is no need to translate it.
+    # Forward SIGTERM to the app
     trap "kill -$signal $!" SIGTERM
 
     # Wait for the app to finish, either by crash or by $signal
-    wait
+    # Signals cause wait to exit with a status equal to the signal number plus 128.
+    # To get the real exit status, loop until $? is less.
+    while wait $!; test $? -ge 128
+      do echo 'App finished correctly, exiting.'
+    done
 
     # Notify FIFO if this finishes first
     echo "$name" > $sentinel
